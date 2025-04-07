@@ -28,26 +28,26 @@ export class Product extends ModelBase implements ProductInterface {
     type: DataType.STRING,
     allowNull: false,
   })
-  name!: string;
+  declare name: string;
 
   @ApiProperty(productsSwagger.price)
   @Column({
     type: DataType.DECIMAL(10, 2),
     allowNull: false,
   })
-  price!: number;
+  declare price: number;
 
   @ApiProperty(productsSwagger.stock)
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
   })
-  stock!: number;
+  declare stock: number;
 
   @ApiProperty(productsSwagger.imageURL)
   @Column({
     type: DataType.STRING,
     allowNull: false,
   })
-  imageURL!: string;
+  declare imageURL: string;
 }
