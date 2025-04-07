@@ -14,6 +14,7 @@ import * as models from '@/modules/_global/config/models';
 import {Product, ProductInterface} from '@/modules/products/schemas/product.schema';
 import { ProductRepository } from '@/modules/products/repositories/product.repository';
 import {CartStatusEnum} from '@modules/carts/enums/cart.status.enum';
+import { v4 as uuidv4 } from 'uuid';
 
 describe('CartService', () => {
   let sequelize: Sequelize;
@@ -151,6 +152,52 @@ describe('CartService', () => {
     it('should create a cart not found', async () => {
       const body: Partial<Cart> = {};
       await expect(service.create(body)).rejects.toThrow();
+    });
+  });
+
+  describe('update', async () => {
+    const productDto: Partial<Product> = {
+      name: faker.commerce.productName(),
+      price: parseFloat(faker.commerce.price({ min: 10, max: 1000 })),
+      stock: faker.number.int({ min: 1, max: 100 }),
+      imageURL: faker.helpers.arrayElement(imageUrls),
+    };
+    const product = await repositoryProduct.create(<ProductInterface>productDto);
+    const plainProduct: Product = JSON.parse(JSON.stringify(product));
+      const cartDto: Partial<Cart> = {
+        stock: faker.number.int({ min: 1, max: plainProduct.stock }),
+                productId: plainProduct.id,
+      };
+      const createCart = await repositoryManager.create(
+        <CartInterface>cartDto,
+      );
+      const cart = JSON.parse(JSON.stringify(createCart));
+      const id = cart.id;
+      const body: Partial<Cart> = {
+        stock: faker.number.int({ min: 1, max: plainProduct.stock }),
+        status: CartStatusEnum.FINISHED,
+      };
+      const result = await service.update(id, body);
+      const plainResult = JSON.parse(JSON.stringify(result));
+      const updatedCart = await repositoryManager.findByPk(id);
+      const plainCart = JSON.parse(JSON.stringify(updatedCart));
+      expect(plainCart).toMatchObject({
+        id: id,
+        stock: body.stock,
+        status: body.status,
+        productId: cart.productId,
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
+      });
+      expect(plainResult).toEqual([null, 1]);
+    it('should not update a cart by id', async () => {
+      const id = uuidv4();
+      const body: Partial<Cart> = {
+        stock: faker.number.int({ min: 1, max: 100 }),
+        status: CartStatusEnum.FINISHED,
+      };
+      const result = await service.update(id, body);
+      expect(result).toEqual([undefined, 0]);
     });
   });
 });
