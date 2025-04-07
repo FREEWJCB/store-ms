@@ -6,6 +6,10 @@ import { CartRepository } from '@/modules/carts/repositories/cart.repository';
 export class CartService {
   constructor(private cartRepository: CartRepository) {}
 
+  public async lists(): Promise<Cart[]> {
+    return this.cartRepository.lists();
+  }
+
   public async create(body: Partial<Cart>): Promise<Cart> {
     return this.cartRepository.create(body);
   }
