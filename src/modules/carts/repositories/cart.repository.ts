@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Cart } from '@/modules/carts/schemas/cart.schema';
 import { InjectModel } from '@nestjs/sequelize';
-import { Sequelize, WhereOptions } from 'sequelize';
+import { DestroyOptions, Sequelize, WhereOptions } from 'sequelize';
 import { CartStatusEnum } from '@modules/carts/enums/cart.status.enum';
 import { ModelNotFoundException } from '@/modules/_global/exceptions/model.not.found.exception';
 
@@ -49,6 +49,21 @@ export class CartRepository {
         throw new ModelNotFoundException('Cart', JSON.stringify(query));
       }
       return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async delete(criteria: DestroyOptions<Cart>): Promise<number> {
+    try {
+      const destroy = await this.cart.destroy(criteria);
+      if (destroy === 0) {
+        throw new ModelNotFoundException(
+          'Cart',
+          JSON.stringify(criteria),
+        );
+      }
+      return destroy;
     } catch (error) {
       throw error;
     }
