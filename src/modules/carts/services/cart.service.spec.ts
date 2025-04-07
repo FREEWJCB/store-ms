@@ -200,4 +200,66 @@ describe('CartService', () => {
       expect(result).toEqual([undefined, 0]);
     });
   });
+
+  describe('delete', () => {
+    it('should delete a cart by id', async () => {
+    const productDto: Partial<Product> = {
+      name: faker.commerce.productName(),
+      price: parseFloat(faker.commerce.price({ min: 10, max: 1000 })),
+      stock: faker.number.int({ min: 1, max: 100 }),
+      imageURL: faker.helpers.arrayElement(imageUrls),
+    };
+    const product = await repositoryProduct.create(<ProductInterface>productDto);
+    const plainProduct: Product = JSON.parse(JSON.stringify(product));
+      const body: Partial<Cart> = {
+        stock: faker.number.int({ min: 1, max: plainProduct.stock }),
+        productId: plainProduct.id,
+      };
+      const createCart = await repositoryManager.create(
+        <CartInterface>body,
+      );
+      const id = createCart.id;
+      const result = await service.delete(id, true);
+      const read = await repositoryManager.findByPk(id);
+      expect(read).toBeNull();
+      expect(result).toBe(1);
+    });
+
+    it('should not delete a cart by id', async () => {
+      const id = uuidv4();
+      await expect(service.delete(id, true)).rejects.toThrow(
+        'Model Not Found Exception',
+      );
+    });
+
+    it('should softdelete a cart by id', async () => {
+      const productDto: Partial<Product> = {
+        name: faker.commerce.productName(),
+        price: parseFloat(faker.commerce.price({ min: 10, max: 1000 })),
+        stock: faker.number.int({ min: 1, max: 100 }),
+        imageURL: faker.helpers.arrayElement(imageUrls),
+      };
+      const product = await repositoryProduct.create(<ProductInterface>productDto);
+      const plainProduct: Product = JSON.parse(JSON.stringify(product));
+      const body: Partial<Cart> = {
+        stock: faker.number.int({ min: 1, max: plainProduct.stock }),
+        productId: plainProduct.id,
+      };
+      const createCart = await repositoryManager.create(
+        <CartInterface>body,
+      );
+      const id = createCart.id;
+      const result = await service.delete(id);
+      const read = await repositoryManager.findByPk(id);
+      expect(read).toBeNull();
+      expect(result).toBe(1);
+    });
+
+    it('should not softdelete a cart by id', async () => {
+      const id = uuidv4();
+      await expect(service.delete(id)).rejects.toThrow(
+        'Model Not Found Exception',
+      );
+    });
+  });
 });
