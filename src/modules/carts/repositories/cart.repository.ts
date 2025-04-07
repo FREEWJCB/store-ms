@@ -1,9 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Cart } from '@/modules/carts/schemas/cart.schema';
 import { InjectModel } from '@nestjs/sequelize';
-import { DestroyOptions, Sequelize, WhereOptions } from 'sequelize';
+import { DestroyOptions, WhereOptions } from 'sequelize';
 import { CartStatusEnum } from '@modules/carts/enums/cart.status.enum';
 import { ModelNotFoundException } from '@/modules/_global/exceptions/model.not.found.exception';
+import { Sequelize } from 'sequelize-typescript';
 
 @Injectable()
 export class CartRepository {
