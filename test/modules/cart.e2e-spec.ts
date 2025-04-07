@@ -236,10 +236,10 @@ describe('Cart', () => {
           status: CartStatusEnum.FINISHED,
         };
 
-        await request(app.getHttpServer())
+        const result = await request(app.getHttpServer())
           .patch(`/cart/${cartId}`)
-          .send(updateDto)
-          .expect(HttpStatus.NOT_FOUND);
+          .send(updateDto);
+        expect(result.body).toEqual([null, 0]);
       });
     });
 

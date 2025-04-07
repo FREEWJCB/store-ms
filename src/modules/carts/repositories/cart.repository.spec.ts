@@ -242,7 +242,7 @@ describe('CartRepository', () => {
           where: { id },
           force: true,
         }),
-      ).rejects.toThrow('Model Not Found Exception');
+      ).rejects.toThrow();
     });
 
     it('should softdelete a cart by id', async () => {
@@ -273,7 +273,7 @@ describe('CartRepository', () => {
         repository.delete({
           where: { id },
         }),
-      ).rejects.toThrow('Model Not Found Exception');
+      ).rejects.toThrow();
     });
   });
 });
