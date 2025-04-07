@@ -3,6 +3,7 @@ import { Cart } from '@/modules/carts/schemas/cart.schema';
 import { InjectModel } from '@nestjs/sequelize';
 import { Sequelize, WhereOptions } from 'sequelize';
 import { CartStatusEnum } from '@modules/carts/enums/cart.status.enum';
+import { ModelNotFoundException } from '@/modules/_global/exceptions/model.not.found.exception';
 
 @Injectable()
 export class CartRepository {
@@ -30,6 +31,25 @@ export class CartRepository {
       return result;
     } catch (error) {
       await transaction.rollback();
+      throw error;
+    }
+  }
+
+  public async update(
+    query: WhereOptions<Cart>,
+    body: Partial<Cart>,
+  ): Promise<[affectedCount: number, affectedRows: Cart[]]> {
+    try {
+      const result = await this.cart.update(body, {
+        where: query,
+        returning: true,
+      });
+      const [affectedCount] = result;
+      if (affectedCount === 0) {
+        throw new ModelNotFoundException('Cart', JSON.stringify(query));
+      }
+      return result;
+    } catch (error) {
       throw error;
     }
   }
