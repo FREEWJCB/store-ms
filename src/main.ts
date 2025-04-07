@@ -1,24 +1,37 @@
 import { NestFactory } from '@nestjs/core';
-import { ExpressAdapter } from '@nestjs/platform-express';
-import { INestApplication } from '@nestjs/common';
-import { I18nValidationExceptionFilter, I18nValidationPipe } from 'nestjs-i18n';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { I18nValidationExceptionFilter } from 'nestjs-i18n';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from '@/app.module';
-import { ProductSeeder } from './modules/products/seeders/product.seeder';
-
+import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
+import fastify from 'fastify';
+import { parseNestedQueryParams } from './modules/_global/functions/fastify.query.parser.ts';
 export async function getApp(): Promise<INestApplication> {
-  const app = await NestFactory.create(AppModule, new ExpressAdapter(), {
-    ...(process.env['APP_STAGE'] === 'production' && {
-      logger: ['error', 'warn'],
-    }),
-  });
+  const instance = fastify();
+
+  // 👇 Aplica el hook que convierte queries anidadas
+  instance.addHook('onRequest', parseNestedQueryParams);
+
+  const adapter = new FastifyAdapter(instance);
+
+  const app = await NestFactory.create<NestFastifyApplication>(
+    AppModule,
+    adapter,
+    {
+      ...(process.env['APP_STAGE'] === 'production' && {
+        logger: ['error', 'warn'],
+      }),
+    },
+  );
   return configureApp(app);
 }
 
 export function configureApp(app: INestApplication): INestApplication {
   app.useGlobalPipes(
-    new I18nValidationPipe({
+    new ValidationPipe({
       transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: false,
       transformOptions: {
         enableImplicitConversion: true,
         exposeUnsetFields: false,
@@ -32,11 +45,6 @@ export function configureApp(app: INestApplication): INestApplication {
 async function bootstrap(): Promise<void> {
   const app = await getApp();
 
-  if (process.argv.includes('--seed') || process.env['SEED_DB'] === 'true') {
-    const seeder = app.get(ProductSeeder);
-    await seeder.seed();
-  }
-
   const config = new DocumentBuilder()
     .setTitle('Store microservice')
     .setDescription('Microservice to handle store operations')
@@ -47,6 +55,10 @@ async function bootstrap(): Promise<void> {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('doc', app, document);
   await app.listen(<string>process.env['APP_PORT'] ?? 3000);
+  // if (process.argv.includes('--seed') || process.env['SEED_DB'] === 'true') {
+  //   const seeder = app.get(ProductSeeder);
+  //   await seeder.seed();
+  // }
 }
 
 bootstrap().then();
