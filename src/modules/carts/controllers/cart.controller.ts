@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post } from '@nestjs/common';
 import {
   ApiOperation,
   ApiTags,
@@ -10,6 +10,7 @@ import { Cart } from '@/modules/carts/schemas/cart.schema';
 import { CartService } from '@/modules/carts/services/cart.service';
 import { CartCreateDto } from '@modules/carts/dtos/cart.create.dto';
 import { CartUpdateDto } from '@modules/carts/dtos/cart.update.dto';
+import { DeleteDto } from '@/modules/_global/dtos/delete.dto';
 
 @ApiTags('Carts')
 @Controller('/cart')
@@ -55,5 +56,19 @@ export class CartController {
     @Body() body: CartUpdateDto,
   ): Promise<[affectedCount: number, affectedRows: Cart[]]> {
     return this.cartService.update(id, body.toPartial());
+  }
+
+  @Delete('/:id')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Delete cart by id' })
+  @ApiOkResponse({
+    description: 'Cart successfully deleted',
+    type: Cart,
+  })
+  public async delete(
+    @Param('id') id: string,
+    @Body() dto: DeleteDto,
+  ): Promise<number> {
+    return this.cartService.delete(id, dto.force);
   }
 }
