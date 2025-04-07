@@ -1,7 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Cart } from '@/modules/carts/schemas/cart.schema';
 import { InjectModel } from '@nestjs/sequelize';
-import { Sequelize } from 'sequelize';
+import { Sequelize, WhereOptions } from 'sequelize';
+import { CartStatusEnum } from '@modules/carts/enums/cart.status.enum';
 
 @Injectable()
 export class CartRepository {
@@ -10,6 +11,14 @@ export class CartRepository {
     private readonly cart: typeof Cart,
     @Inject(Sequelize) private readonly sequelize: Sequelize,
   ) {}
+
+  public async lists(): Promise<Cart[]> {
+    return this.cart.findAll({
+      where: <WhereOptions<Cart>>{
+        status: CartStatusEnum.PENDING,
+      },
+    });
+  }
 
   public async create(attribute: Partial<Cart>): Promise<Cart> {
     const transaction = await this.sequelize.transaction();
