@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
+import * as models from '@/modules/_global/config/models';
+import * as modules from '@/modules/_global/config/modules';
 export const fallbackLanguage = 'es';
 
 @Module({
@@ -16,10 +18,11 @@ export const fallbackLanguage = 'es';
       username: process.env['APP_BD_USERNAME']!,
       password: String(process.env['APP_BD_PASSWORD']!),
       database: `${process.env['APP_BD_NAME']}_${process.env['APP_STAGE']}`,
-      models: [],
+      models: Object.values(models),
       logging: process.env['APP_STAGE'] === 'development',
       synchronize: false,
     }),
+    ...Object.values(modules),
   ],
 })
 export class AppModule {}
