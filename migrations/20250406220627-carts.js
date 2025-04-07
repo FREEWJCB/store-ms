@@ -27,6 +27,7 @@ module.exports = {
       status: {
         type: Sequelize.STRING,
         allowNull: false,
+        defaultValue: 'pending',
       },
       createdAt: {
         type: Sequelize.DATE,
