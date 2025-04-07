@@ -13,4 +13,12 @@ export class CartService {
   public async create(body: Partial<Cart>): Promise<Cart> {
     return this.cartRepository.create(body);
   }
+
+  public async update(
+    id: string,
+    body: Partial<Cart>,
+  ): Promise<[affectedCount: number, affectedRows: Cart[]]> {
+    return this.cartRepository.update({ id }, body);
+  }
+
 }
