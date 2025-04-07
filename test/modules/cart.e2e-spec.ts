@@ -242,5 +242,73 @@ describe('Cart', () => {
           .expect(HttpStatus.NOT_FOUND);
       });
     });
+
+    describe('Delete cart', () => {
+      it('/cart/:id (DELETE)', async () => {
+        const productDto: Partial<Product> = {
+          name: faker.commerce.productName(),
+          price: parseFloat(faker.commerce.price({ min: 10, max: 1000 })),
+          stock: faker.number.int({ min: 1, max: 100 }),
+          imageURL: faker.helpers.arrayElement(imageUrls),
+        };
+        const product = await repositoryProduct.create(<ProductInterface>productDto);
+        const plainProduct: Product = JSON.parse(JSON.stringify(product));
+        const createDto = {
+          stock: faker.number.int({ min: 1, max: plainProduct.stock }),
+          productId: plainProduct.id,
+        };
+        const cart = await Cart.create(<CartInterface>createDto);
+        const cartId = cart.id;
+        const del = await request(app.getHttpServer())
+          .delete(`/cart/${cartId}`)
+          .send({ force: true })
+          .expect(HttpStatus.OK);
+        expect(del.body).toBe(1);
+        const type = await Cart.findOne({ where: { id: cartId } });
+        expect(type).toBeNull();
+      });
+
+      it('/cart/:id (DELETE) not delete', async () => {
+        const cartId = uuidv4();
+        await request(app.getHttpServer())
+          .delete(`/cart/${cartId}`)
+          .send({ force: true })
+          .expect(HttpStatus.NOT_FOUND);
+      });
+
+      it('/cart/:id (SOFT DELETE)', async () => {
+        const productDto: Partial<Product> = {
+          name: faker.commerce.productName(),
+          price: parseFloat(faker.commerce.price({ min: 10, max: 1000 })),
+          stock: faker.number.int({ min: 1, max: 100 }),
+          imageURL: faker.helpers.arrayElement(imageUrls),
+        };
+        const product = await repositoryProduct.create(<ProductInterface>productDto);
+        const plainProduct: Product = JSON.parse(JSON.stringify(product));
+        const createDto = {
+          stock: faker.number.int({ min: 1, max: plainProduct.stock }),
+          productId: plainProduct.id,
+        };
+        const cart = await Cart.create(<CartInterface>createDto);
+
+        const cartId = cart.id;
+        const del = await request(app.getHttpServer())
+          .delete(`/cart/${cartId}`)
+          .send({ force: false })
+          .expect(HttpStatus.OK);
+        expect(del.body).toBe(1);
+        const type = await Cart.findOne({ where: { id: cartId } });
+        expect(type).toBeNull();
+      });
+
+      it('/cart/:id (SOFT DELETE) not softdelete', async () => {
+        const cartId = uuidv4();
+        expect(cartId).toBeDefined();
+        await request(app.getHttpServer())
+          .delete(`/cart/${cartId}`)
+          .send({ force: false })
+          .expect(HttpStatus.NOT_FOUND);
+      });
+    });
   });
 });
