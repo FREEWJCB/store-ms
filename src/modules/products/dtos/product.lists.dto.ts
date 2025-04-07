@@ -13,17 +13,8 @@ import { ProductFiltersDto } from '@/modules/products/dtos/filters/product.filte
 import { withoutEmpty } from '@/modules/_global/functions/sanitize';
 import { Product } from '@modules/products/schemas/product.schema';
 import { FindOptions } from 'sequelize';
-export interface ProductListDtoConstructor {
-  filters?: ProductFiltersDto | undefined;
-  limit?: number | undefined;
-}
 export class ProductListDto implements Record<string, unknown> {
   [key: string]: unknown;
-
-  constructor(dto: ProductListDtoConstructor | undefined = undefined) {
-    this.filters = dto?.filters;
-    this.limit = dto?.limit;
-  }
 
   @Expose()
   @ApiPropertyOptional({
@@ -49,6 +40,7 @@ export class ProductListDto implements Record<string, unknown> {
   public limit?: number | undefined;
 
   public toQueryOptions(): FindOptions<Product> {
+
     return withoutEmpty<FindOptions<Product>>(<FindOptions<Product>>{
       ...(this.filters && { where: this.filters?.toQueryFilter() }),
       limit: this.limit,

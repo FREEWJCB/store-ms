@@ -6,15 +6,8 @@ import { castToQueryFilter } from '@/modules/_global/functions/instance.check';
 import { WhereOptions, Op } from 'sequelize';
 import { productsSwagger } from '@modules/products/swaggers/product.swagger';
 
-interface ProductFiltersDtoConstructor {
-  name: string;
-}
 export class ProductFiltersDto implements Record<string, unknown> {
   [key: string]: unknown;
-
-  constructor(dto: ProductFiltersDtoConstructor | undefined = undefined) {
-    this.name = dto?.name;
-  }
 
   @Expose()
   @ApiPropertyOptional({
@@ -36,7 +29,7 @@ export class ProductFiltersDto implements Record<string, unknown> {
       (key, query) => {
         switch (key) {
           case 'name':
-            (query as any).fullName = { [Op.iLike]: `%${this[key]!}%` };
+            (query as any).name = { [Op.iLike]: `%${this[key]!}%` };
             break;
         }
         return query;
