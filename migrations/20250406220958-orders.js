@@ -17,6 +17,7 @@ module.exports = {
       status: {
         type: Sequelize.STRING,
         allowNull: false,
+        defaultValue: 'finished',
       },
       createdAt: {
         type: Sequelize.DATE,
