@@ -113,7 +113,7 @@ describe('Cart', () => {
                 productId: plainProduct.id,
               };
             })
-        );
+          );
           const types = await Promise.all(
             createDtos.map((dto) =>
               repositoryManager.create(<CartInterface>dto),

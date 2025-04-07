@@ -7,10 +7,10 @@ import { InjectModel } from '@nestjs/sequelize';
 export class ProductRepository {
   constructor(
     @InjectModel(Product)
-    private readonly genre: typeof Product,
+    private readonly product: typeof Product,
   ) {}
 
   public async lists(query: FindOptions<Product>): Promise<Product[]> {
-    return this.genre.findAll(query);
+    return this.product.findAll(query);
   }
 }
