@@ -19,6 +19,7 @@ import * as models from '@/modules/_global/config/models';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { Product, ProductInterface } from '@/modules/products/schemas/product.schema';
 import { ProductRepository } from '@/modules/products/repositories/product.repository';
+import {CartStatusEnum} from '@modules/carts/enums/cart.status.enum';
 
 describe('Cart', () => {
   let sequelize: Sequelize;
@@ -145,6 +146,45 @@ describe('Cart', () => {
             .get('/cart')
             .expect(HttpStatus.OK);
           expect(response.body.length).toBe(0);
+        });
+      });
+    });
+
+    describe('create cart', () => {
+      describe('create cart 201', () => {
+        it('/cart (POST)', async () => {
+          const productDto: Partial<Product> = {
+            name: faker.commerce.productName(),
+            price: parseFloat(faker.commerce.price({ min: 10, max: 1000 })),
+            stock: faker.number.int({ min: 1, max: 100 }),
+            imageURL: faker.helpers.arrayElement(imageUrls),
+          };
+          const product = await repositoryProduct.create(<ProductInterface>productDto);
+          const plainProduct: Product = JSON.parse(JSON.stringify(product));
+          const createDto = {
+            stock: faker.number.int({ min: 1, max: plainProduct.stock }),
+            productId: plainProduct.id,
+          };
+          const response = await request(app.getHttpServer())
+            .post('/cart')
+            .send(createDto)
+            .expect(HttpStatus.CREATED);
+
+          expect(response.body).toMatchObject({
+            id: expect.any(String),
+            stock: createDto.stock,
+            status: CartStatusEnum.PENDING,
+            productId: createDto.productId,
+            createdAt: expect.any(String),
+            updatedAt: expect.any(String),
+          });
+        });
+      });
+      describe('create cart fail', () => {
+        it('/cart (POST)', async () => {
+          await request(app.getHttpServer())
+            .post('/cart')
+            .expect(HttpStatus.BAD_REQUEST);
         });
       });
     });
