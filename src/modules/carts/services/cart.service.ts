@@ -21,4 +21,7 @@ export class CartService {
     return this.cartRepository.update({ id }, body);
   }
 
+  public async delete(id: string, force: boolean = false): Promise<number> {
+    return this.cartRepository.delete({ where: { id }, force });
+  }
 }
