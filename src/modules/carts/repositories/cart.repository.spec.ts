@@ -13,6 +13,7 @@ import { faker } from '@test/faker';
 import * as models from '@/modules/_global/config/models';
 import {Product, ProductInterface} from '@/modules/products/schemas/product.schema';
 import {ProductRepository} from '@/modules/products/repositories/product.repository';
+import {CartStatusEnum} from '@modules/carts/enums/cart.status.enum';
 
 describe('CartRepository', () => {
   let sequelize: Sequelize;
@@ -121,6 +122,38 @@ describe('CartRepository', () => {
           ),
         ),
       );
+    });
+  });
+
+  describe('create', () => {
+    it('should create a cart not found', async () => {
+      const body: Partial<Cart> = {};
+      await expect(repository.create(body)).rejects.toThrow();
+    });
+
+    it('should create a cart', async () => {
+      const productDto: Partial<Product> = {
+        name: faker.commerce.productName(),
+        price: parseFloat(faker.commerce.price({ min: 10, max: 1000 })),
+        stock: faker.number.int({ min: 1, max: 100 }),
+        imageURL: faker.helpers.arrayElement(imageUrls),
+      };
+      const product = await repositoryProduct.create(<ProductInterface>productDto);
+      const plainProduct: Product = JSON.parse(JSON.stringify(product));
+      const body = {
+        stock: faker.number.int({ min: 1, max: plainProduct.stock }),
+        productId: plainProduct.id,
+      };
+      const result = await repository.create(body);
+      const plainResult = JSON.parse(JSON.stringify(result));
+      expect(plainResult).toMatchObject({
+        id: expect.any(String),
+        stock: body.stock,
+        status: CartStatusEnum.PENDING,
+        productId: body.productId,
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
+      });
     });
   });
 });
