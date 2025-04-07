@@ -19,7 +19,8 @@ import * as models from '@/modules/_global/config/models';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { Product, ProductInterface } from '@/modules/products/schemas/product.schema';
 import { ProductRepository } from '@/modules/products/repositories/product.repository';
-import {CartStatusEnum} from '@modules/carts/enums/cart.status.enum';
+import { CartStatusEnum } from '@modules/carts/enums/cart.status.enum';
+import { v4 as uuidv4 } from 'uuid';
 
 describe('Cart', () => {
   let sequelize: Sequelize;
@@ -186,6 +187,59 @@ describe('Cart', () => {
             .post('/cart')
             .expect(HttpStatus.BAD_REQUEST);
         });
+      });
+    });
+
+    describe('Update cart', () => {
+      it('/cart/:id (PATCH)', async () => {
+        const productDto: Partial<Product> = {
+          name: faker.commerce.productName(),
+          price: parseFloat(faker.commerce.price({ min: 10, max: 1000 })),
+          stock: faker.number.int({ min: 1, max: 100 }),
+          imageURL: faker.helpers.arrayElement(imageUrls),
+        };
+        const product = await repositoryProduct.create(<ProductInterface>productDto);
+        const plainProduct: Product = JSON.parse(JSON.stringify(product));
+        const createDto = {
+          stock: faker.number.int({ min: 1, max: plainProduct.stock }),
+          productId: plainProduct.id,
+        };
+        const cart = await repositoryManager.create(
+          <CartInterface>createDto,
+        );
+        const cartId = cart.id;
+        const updateDto = {
+          stock: faker.number.int({ min: 1, max: plainProduct.stock }),
+          status: CartStatusEnum.FINISHED,
+        };
+
+        const updateResponse = await request(app.getHttpServer())
+          .patch(`/cart/${cartId}`)
+          .send(updateDto);
+        const updatedCart = await repositoryManager.findByPk(cartId);
+        const result = JSON.parse(JSON.stringify(updatedCart));
+        expect(result).toMatchObject({
+          id: cartId,
+          stock: updateDto.stock,
+          status: updateDto.status,
+          productId: createDto.productId,
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+        });
+        expect(updateResponse.body).toEqual([null, 1]);
+      });
+
+      it('/cart/:id (PATCH) fail', async () => {
+        const cartId = uuidv4();
+        const updateDto = {
+          stock: faker.number.int({ min: 1, max: 100 }),
+          status: CartStatusEnum.FINISHED,
+        };
+
+        await request(app.getHttpServer())
+          .patch(`/cart/${cartId}`)
+          .send(updateDto)
+          .expect(HttpStatus.NOT_FOUND);
       });
     });
   });
