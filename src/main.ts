@@ -5,10 +5,14 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from '@/app.module';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import fastify from 'fastify';
-import { parseNestedQueryParams } from './modules/_global/functions/fastify.query.parser.ts';
+import { parseNestedQueryParams } from '@/modules/_global/functions/fastify.query.parser.ts';
+import cors from '@fastify/cors';
 export async function getApp(): Promise<INestApplication> {
   const instance = fastify();
-
+  await instance.register(cors, {
+    origin: '*',
+    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+  });
   // 👇 Aplica el hook que convierte queries anidadas
   instance.addHook('onRequest', parseNestedQueryParams);
 
