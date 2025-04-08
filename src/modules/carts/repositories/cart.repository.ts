@@ -5,6 +5,7 @@ import { DestroyOptions, WhereOptions } from 'sequelize';
 import { CartStatusEnum } from '@modules/carts/enums/cart.status.enum';
 import { ModelNotFoundException } from '@/modules/_global/exceptions/model.not.found.exception';
 import { Sequelize } from 'sequelize-typescript';
+import { Product } from '@/modules/products/schemas/product.schema';
 
 @Injectable()
 export class CartRepository {
@@ -19,6 +20,14 @@ export class CartRepository {
       where: <WhereOptions<Cart>>{
         status: CartStatusEnum.PENDING,
       },
+      include: [
+        {
+          model: Product,
+          as: 'product',
+          required: false,
+        },
+      ],
+      order: [['createdAt', 'DESC']],
     });
   }
 
