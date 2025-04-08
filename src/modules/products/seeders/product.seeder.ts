@@ -26,8 +26,6 @@ export class ProductSeeder {
         'https://fakestoreapi.com/img/61IBBVJvSDL._AC_SY879_.jpg',
         'https://fakestoreapi.com/img/61U7T1koQqL._AC_SX679_.jpg',
         'https://fakestoreapi.com/img/81Zt42ioCgL._AC_SX679_.jpg',
-        'https://fakestoreapi.com/img/71pWzhdJNwL._AC_UL640_QL65_ML3_.jpg',
-        'https://fakestoreapi.com/img/71YAIFU48IL._AC_UL640_QL65_ML3_.jpg',
         'https://fakestoreapi.com/img/61IBBVJvSDL._AC_SY879_.jpg',
     ];
 
