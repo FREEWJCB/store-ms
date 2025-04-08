@@ -24,6 +24,7 @@ APP_BD_USERNAME=postgres
 APP_BD_PASSWORD=123456
 APP_BD_NAME=tienda
 
+nota: al crearla base de datos debe tener el nombre dependiendo de estas variables de entorno APP_BD_NAME y APP_BD_PORT, ya que en su conexionse encuentra el nombre de la base de datos de esta forma: `${APP_BD_NAME}_${APP_BD_PORT}`, entonces si tienes APP_BD_NAME=tienda y APP_BD_PORT=local, entonces el nombre ue debe tener la base de datos es 'tienda_local'
 ## 🛠️ Comandos de desarrollo
 
 yarn start:dev
