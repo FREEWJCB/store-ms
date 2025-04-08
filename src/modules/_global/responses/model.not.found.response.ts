@@ -1,9 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { HttpStatus } from '@nestjs/common';
 
-
+// Clase que define la estructura de una respuesta cuando un modelo no se encuentra
 export class ModelNotFoundResponse implements Record<string, unknown> {
   [key: string]: unknown;
+
   @ApiProperty({
     description: 'Response status code',
     example: HttpStatus.NOT_FOUND,
@@ -17,6 +18,7 @@ export class ModelNotFoundResponse implements Record<string, unknown> {
   })
   public message!: string;
 
+  // Método de fábrica para construir la respuesta a partir del modelo e ID faltante
   public static fromModelNotFound(
     model: string,
     id: string,
