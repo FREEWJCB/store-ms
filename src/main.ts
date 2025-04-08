@@ -80,11 +80,15 @@ async function bootstrap(): Promise<void> {
   await app.listen(<string>process.env['APP_PORT'] ?? 3000);
 
   // Código comentado para ejecutar un seeder opcional
-  if (process.argv.includes('--seed') || process.env['SEED_DB'] === 'true') {
+  if (process.argv.includes('--seed')) {
+    console.info('Running seeders...');
     const products = app.get(ProductSeeder);
     await products.seed();
     const carts = app.get(CartSeeder);
     await carts.seed();
+    console.info('Seeding completed.');
+    await app.close(); // Cierra la aplicación después de ejecutar los seeders
+    return; // Termina la ejecución
   }
 }
 
