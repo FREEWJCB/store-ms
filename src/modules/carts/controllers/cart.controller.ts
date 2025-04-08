@@ -28,6 +28,7 @@ export class CartController {
     },
   })
   public async index(): Promise<Cart[]> {
+    // Devuelve la lista de carritos
     return this.cartService.lists();
   }
 
@@ -41,6 +42,7 @@ export class CartController {
   public async create(
     @Body() body: CartCreateDto,
   ): Promise<Cart> {
+    // Crea un nuevo carrito con los datos del cuerpo de la solicitud
     return this.cartService.create(body.toPartial());
   }
 
@@ -55,6 +57,7 @@ export class CartController {
     @Param('id') id: string,
     @Body() body: CartUpdateDto,
   ): Promise<[affectedCount: number, affectedRows: Cart[]]> {
+    // Actualiza un carrito específico por su id
     return this.cartService.update(id, body.toPartial());
   }
 
@@ -68,6 +71,7 @@ export class CartController {
   public async clean(
     @Body() dto: DeleteDto,
   ): Promise<number> {
+    // Elimina todos los carritos, con opción forzada si se indica
     return this.cartService.clean(dto.force);
   }
 
@@ -82,6 +86,7 @@ export class CartController {
     @Param('id') id: string,
     @Body() dto: DeleteDto,
   ): Promise<number> {
+    // Elimina un carrito específico por su id, con opción forzada si se indica
     return this.cartService.delete(id, dto.force);
   }
 }

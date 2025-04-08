@@ -12,35 +12,36 @@ export class CartRepository {
   constructor(
     @InjectModel(Cart)
     private readonly cart: typeof Cart,
-    @Inject(Sequelize) private readonly sequelize: Sequelize,
+    @Inject(Sequelize)
+    private readonly sequelize: Sequelize,
   ) {}
 
   public async lists(): Promise<Cart[]> {
     return this.cart.findAll({
       where: <WhereOptions<Cart>>{
-        status: CartStatusEnum.PENDING,
+        status: CartStatusEnum.PENDING, // Filtramos los carritos con estado PENDING
       },
       include: [
         {
           model: Product,
           as: 'product',
-          required: false,
+          required: false, // Incluimos los productos relacionados (si existen)
         },
       ],
-      order: [['createdAt', 'DESC']],
+      order: [['createdAt', 'DESC']], // Ordenamos por fecha de creación descendente
     });
   }
 
   public async create(attribute: Partial<Cart>): Promise<Cart> {
-    const transaction = await this.sequelize.transaction();
+    const transaction = await this.sequelize.transaction(); // Iniciamos una transacción
     try {
       const result = await this.cart.create(attribute as Cart, {
-        transaction,
+        transaction, // Asociamos la transacción al create
       });
-      await transaction.commit();
+      await transaction.commit(); // Confirmamos la transacción si todo va bien
       return result;
     } catch (error) {
-      await transaction.rollback();
+      await transaction.rollback(); // Revertimos cambios en caso de error
       throw error;
     }
   }
@@ -51,11 +52,12 @@ export class CartRepository {
   ): Promise<[affectedCount: number, affectedRows: Cart[]]> {
     try {
       const result = await this.cart.update(body, {
-        where: query,
-        returning: true,
+        where: query, // Aplicamos el filtro recibido
+        returning: true, // Retornamos los registros modificados
       });
       const [affectedCount] = result;
       if (affectedCount === 0) {
+        // Lanzamos excepción si no se encontró ningún carrito
         throw new ModelNotFoundException('Cart', JSON.stringify(query));
       }
       return result;
@@ -66,8 +68,9 @@ export class CartRepository {
 
   public async delete(criteria: DestroyOptions<Cart>): Promise<number> {
     try {
-      const destroy = await this.cart.destroy(criteria);
+      const destroy = await this.cart.destroy(criteria); // Ejecutamos la eliminación
       if (destroy === 0) {
+        // Si no se eliminó ningún registro, lanzamos excepción
         throw new ModelNotFoundException(
           'Cart',
           JSON.stringify(criteria),
