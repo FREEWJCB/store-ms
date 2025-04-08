@@ -24,4 +24,9 @@ module.exports = {
     '^@test/(.*)$': '<rootDir>/../test/$1',
   },
   setupFilesAfterEnv: ['jest-extended/all'],
+  globals: {
+    'ts-jest': {
+      tsconfig: '<rootDir>/../tsconfig.jest.json', // Usa el archivo tsconfig específico para Jest
+    },
+  },
 };
