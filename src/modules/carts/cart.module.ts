@@ -5,6 +5,7 @@ import { CartRepository } from '@/modules/carts/repositories/cart.repository';
 import { SequelizeModule } from '@nestjs/sequelize';
 import * as models from '@/modules/_global/config/models';
 import { ProductRepository } from '@modules/products/repositories/product.repository';
+import { CartSeeder } from '@modules/carts/seeders/cart.seeder';
 
 @Module({
   // Se importan los modelos registrados para Sequelize dentro del módulo, necesarios para las operaciones con la base de datos
@@ -14,9 +15,9 @@ import { ProductRepository } from '@modules/products/repositories/product.reposi
   controllers: [CartController],
 
   // Se registran los servicios y repositorios que serán usados dentro del módulo
-  providers: [CartService, CartRepository, ProductRepository],
+  providers: [CartService, CartRepository, ProductRepository, CartSeeder],
 
   // Se exporta el servicio de carrito para que pueda ser usado en otros módulos
-  exports: [CartService],
+  exports: [CartService, CartSeeder],
 })
 export class CartModule {}
