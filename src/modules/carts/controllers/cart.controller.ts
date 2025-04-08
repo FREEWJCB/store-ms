@@ -58,6 +58,19 @@ export class CartController {
     return this.cartService.update(id, body.toPartial());
   }
 
+  @Delete()
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Delete cart by id' })
+  @ApiOkResponse({
+    description: 'Cart successfully deleted',
+    type: Cart,
+  })
+  public async clean(
+    @Body() dto: DeleteDto,
+  ): Promise<number> {
+    return this.cartService.clean(dto.force);
+  }
+
   @Delete('/:id')
   @HttpCode(200)
   @ApiOperation({ summary: 'Delete cart by id' })

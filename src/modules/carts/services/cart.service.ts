@@ -24,4 +24,8 @@ export class CartService {
   public async delete(id: string, force: boolean = false): Promise<number> {
     return this.cartRepository.delete({ where: { id }, force });
   }
+
+  public async clean(force: boolean = false): Promise<number> {
+    return this.cartRepository.delete({ truncate: true, force });
+  }
 }
