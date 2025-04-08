@@ -17,10 +17,18 @@ import { OrderRepository } from '@/modules/orders/repositories/order.repository'
 import * as models from '@/modules/_global/config/models';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { OrderStatusEnum } from '@modules/orders/enums/order.status.enum';
+import { CartRepository } from '@/modules/carts/repositories/cart.repository';
+import { OrderCartRepository } from '@/modules/order-carts/repositories/order.cart.repository';
+import { Product } from '@/modules/products/schemas/product.schema';
+import { Cart } from '@/modules/carts/schemas/cart.schema';
+import { OrderCart } from '@/modules/order-carts/schemas/order.cart.schema';
 
 describe('Order', () => {
   let sequelize: Sequelize;
   let repositoryManager: typeof Order;
+  let repositoryCart: typeof Cart;
+  let repositoryProduct: typeof Product;
+  let repositoryOrderCart: typeof OrderCart;
   let app: NestFastifyApplication;
   config({
     path: path.resolve(process.cwd(), '.env.testing'),
@@ -29,6 +37,9 @@ describe('Order', () => {
     sequelize = getSequelizeInstance(Object.values(models));
     await sequelize.sync();
     repositoryManager = sequelize.models['Order'] as typeof Order;
+    repositoryCart = sequelize.models['Cart'] as typeof Cart;
+    repositoryProduct = sequelize.models['Product'] as typeof Product;
+    repositoryOrderCart = sequelize.models['OrderCart'] as typeof OrderCart;
     const module: TestingModule = await Test.createTestingModule({
       controllers: [OrderController],
       providers: [
@@ -36,8 +47,22 @@ describe('Order', () => {
           provide: getModelToken(Order),
           useValue: repositoryManager,
         },
+        {
+          provide: getModelToken(Cart),
+          useValue: repositoryCart,
+        },
+        {
+          provide: getModelToken(Product),
+          useValue: repositoryProduct,
+        },
+        {
+          provide: getModelToken(OrderCart),
+          useValue: repositoryOrderCart,
+        },
         OrderService,
         OrderRepository,
+        CartRepository,
+        OrderCartRepository,
       ],
       imports: [
         ...SequelizeTestingModule(Object.values(models)),
