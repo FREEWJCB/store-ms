@@ -6,42 +6,47 @@ import {
 import { Cart } from '@/modules/carts/schemas/cart.schema';
 import { Order } from '@/modules/orders/schemas/order.schema';
 
+// Interfaz que define los atributos del modelo OrderCart
 export interface OrderCartInterface extends ModelBaseInterface {
-    cartId: string;
-    cart?: Cart;
-    orderId: string;
-    order?: Order;
+  cartId: string;     // ID del carrito relacionado
+  cart?: Cart;        // Instancia opcional del carrito asociado
+  orderId: string;    // ID del pedido relacionado
+  order?: Order;      // Instancia opcional del pedido asociado
 }
 
 @Table({
-  tableName: 'order_carts',
-  timestamps: true,
-  paranoid: true,
+  tableName: 'order_carts', // Nombre de la tabla en la base de datos
+  timestamps: true,         // Habilita las columnas createdAt y updatedAt
+  paranoid: true,           // Habilita la eliminación lógica con la columna deletedAt
 })
 export class OrderCart extends ModelBase implements OrderCartInterface {
-    @ForeignKey(() => Order)
-    @Column({
-      type: DataType.UUID,
-      allowNull: true,
-    })
-    declare orderId: string;
+  // Clave foránea que referencia a la tabla de órdenes
+  @ForeignKey(() => Order)
+  @Column({
+    type: DataType.UUID,  // Tipo de dato UUID
+    allowNull: true,      // Permite valores nulos
+  })
+  declare orderId: string;
 
-    @BelongsTo(() => Order, {
-      onDelete: 'SET NULL',
-      targetKey: 'id',
-    })
-    declare order?: Order;
+  // Relación "pertenece a" con el modelo Order
+  @BelongsTo(() => Order, {
+    onDelete: 'SET NULL',  // Si se elimina la orden, se pone el valor de orderId en NULL
+    targetKey: 'id',       // Clave primaria de la tabla objetivo
+  })
+  declare order?: Order;
 
-    @ForeignKey(() => Cart)
-    @Column({
-      type: DataType.UUID,
-      allowNull: true,
-    })
-    declare cartId: string;
+  // Clave foránea que referencia a la tabla de carritos
+  @ForeignKey(() => Cart)
+  @Column({
+    type: DataType.UUID,
+    allowNull: true,
+  })
+  declare cartId: string;
 
-    @BelongsTo(() => Cart, {
-      onDelete: 'SET NULL',
-      targetKey: 'id',
-    })
-    declare cart?: Cart;
+  // Relación "pertenece a" con el modelo Cart
+  @BelongsTo(() => Cart, {
+    onDelete: 'SET NULL',
+    targetKey: 'id',
+  })
+  declare cart?: Cart;
 }
